@@ -1,7 +1,8 @@
 'use client';
 import React from 'react'
 import { useState, useEffect, useRouter } from 'react';
-
+import Tiles from '@/components/Tiles';
+import Button from '@/components/Button';
 export default function page() {
   //hooks for getWords lib
   const [word, setWord] = useState('');
@@ -12,9 +13,8 @@ export default function page() {
   const [firstDefinition, setFirstDefinition] = useState('');
   const [firstExample, setFirstExample] = useState('');
   //hooks for game
-  const [heart, setHeart] = useState(3);
-  const [wrong, setWrong] = useState(0);
-  const [guess, setGuess] = useState([]);
+  const [heart, setHeart] = useState(5);
+  const [guess, setGuess] = useState('');
   const [coin, setCoin] = useState(0);
 
   useEffect(() => {
@@ -56,13 +56,42 @@ export default function page() {
 
   }, []);
 
+  const checkSubmit = (currentGuess, word) => {
+
+    if (currentGuess.toLowerCase() !== word.toLowerCase()) {
+      setHeart(prev => Math.max(prev - 1, 0));
+    }
+  }
+
+  useEffect(() => {
+    if (heart < 1) {
+      // ⏳ Let React update DOM before showing alert
+      setTimeout(() => {
+        alert('You lose, the word was ' + word + '. Try again!');
+        window.location.reload();
+      }, 100); // 100ms is enough
+    }
+  }, [heart]);
 
   return (
     <div className='flex flex-col'>
-      <h1>Word:{word}</h1>
+      <div className="flex gap-1">
+        {Array.from({ length: heart }).map((_, i) => (
+          <span key={i}>❤️</span>
+        ))}
+      </div>
+      <h1>{word.length} letter word</h1>
+      {word && (
+        <Tiles
+          length={word.length}
+          onInputChange={(currentGuess) => setGuess(currentGuess)}
+        />
+      )}
+      <h1 className='hidden'>Word:{word}</h1>
       <h1>phonetic:{phonetic}</h1>
       <h1>partOfSpeech:{partsOfSpeech}</h1>
       <h1>fd:{firstDefinition}</h1>
+      <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
     </div>
   )
 }
