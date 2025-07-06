@@ -77,7 +77,7 @@ export default function page() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [guess, word]);
-
+  
   //Game over function
   useEffect(() => {
     if (heart < 1) {
@@ -85,7 +85,8 @@ export default function page() {
       setTimeout(() => {
         alert('You lose, the word was ' + word + '. Try again!');
         getRandomWord();
-        setGuess();
+        setHeart(prev => prev + 5);
+        setGuess('');
       }, 100); // 100ms is enough
     }
   }, [heart]);
@@ -101,6 +102,7 @@ export default function page() {
       <h1>{word.length} letter word</h1>
       {word && (
         <Tiles
+          key={word}
           length={word.length}
           onInputChange={(currentGuess) => setGuess(currentGuess)}
         />
