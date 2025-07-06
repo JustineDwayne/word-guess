@@ -17,58 +17,75 @@ export default function page() {
   const [guess, setGuess] = useState('');
   const [coin, setCoin] = useState(0);
 
-  useEffect(() => {
-    const getRandomWord = async () => {
-      try {
+  const getRandomWord = async () => {
+    try {
+      const res = await fetch(`https://random-word-api.vercel.app/api?words=1`);
+      const [randomWord] = await res.json();
 
-        // Get a truly random word from the API
-        const res = await fetch(`https://random-word-api.vercel.app/api?words=1`);
-        const [randomWord] = await res.json(); // API returns an array
+      const dictRes = await fetch(`/api/define?word=${randomWord}`);
 
-        // Use your own API to get word details from Free Dictionary
-        const dictRes = await fetch(`/api/define?word=${randomWord}`);
-
-        if (dictRes.status === 404) {
-          // 🔁 retry fetching another random word here
-          console.warn('Retrying with another random word...');
-          getRandomWord();
-          return;
-        }
-        const dictData = await dictRes.json();
-
-        if (dictData.error) throw new Error(dictData.error);
-
-        // Set all states with dictionary info
-        setWord(randomWord);
-        setPhonetic(dictData.phonetic);
-        setPhoneticsAudio(dictData.phoneticsAudio);
-        setOrigin(dictData.origin);
-        setPartsOfSpeech(dictData.partsOfSpeech);
-        setFirstDefinition(dictData.firstDefinition);
-        setFirstExample(dictData.firstExample);
-
-      } catch (error) {
-        console.error('Error fetching word:', error.message);
+      if (dictRes.status === 404) {
+        console.warn('Retrying with another random word...');
+        getRandomWord();
+        return;
       }
-    };
 
+      const dictData = await dictRes.json();
+
+      if (dictData.error) throw new Error(dictData.error);
+
+      setWord(randomWord);
+      setPhonetic(dictData.phonetic);
+      setPhoneticsAudio(dictData.phoneticsAudio);
+      setOrigin(dictData.origin);
+      setPartsOfSpeech(dictData.partsOfSpeech);
+      setFirstDefinition(dictData.firstDefinition);
+      setFirstExample(dictData.firstExample);
+    } catch (error) {
+      console.error('Error fetching word:', error.message);
+    }
+  };
+
+  useEffect(() => {
     getRandomWord();
-
   }, []);
 
+
+  //submit button function
   const checkSubmit = (currentGuess, word) => {
 
     if (currentGuess.toLowerCase() !== word.toLowerCase()) {
       setHeart(prev => Math.max(prev - 1, 0));
     }
+
+    if (currentGuess.toLowerCase() == word.toLowerCase()) {
+      alert('You win! The word was ' + word + '. Try again!');
+      setCoin(prev => prev + 1);
+      getRandomWord();
+      setGuess('');
+    }
   }
 
+  //enter function
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        checkSubmit(guess, word);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [guess, word]);
+
+  //Game over function
   useEffect(() => {
     if (heart < 1) {
       // ⏳ Let React update DOM before showing alert
       setTimeout(() => {
         alert('You lose, the word was ' + word + '. Try again!');
-        window.location.reload();
+        getRandomWord();
+        setGuess();
       }, 100); // 100ms is enough
     }
   }, [heart]);
@@ -80,6 +97,7 @@ export default function page() {
           <span key={i}>❤️</span>
         ))}
       </div>
+      <div>{coin > 1 ? `Coins: ${coin}` : `Coin: ${coin}`}</div>
       <h1>{word.length} letter word</h1>
       {word && (
         <Tiles
