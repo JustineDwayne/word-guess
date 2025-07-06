@@ -1,23 +1,27 @@
 export async function getWords(word) {
-    word = 'hello'
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+  const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
 
-    if (!res.ok){
-        throw new Error('Failed to fetch words');
-    }
+  if (!res.ok) throw new Error('Failed to fetch word');
 
-    const data = await res.json();
-    const entry = data[0];
-    const meaning = entry.meanings?.[0];
-    const definition = meaning?.definitions?.[0];
+  const data = await res.json();
+  const entry = data[0];
+  const meaning = entry.meanings?.[0];
+  const definition = meaning?.definitions?.[0];
 
-    return{
-        word: entry.word,
-        phonetic: entry.phonetic ?? '',
-        phoneticsAudio: entry.phonetics?.audio ?? '',
-        origin: entry.origin ?? '',
-        partsOfSpeech: meaning?.partsOfSpeech ?? '',
-        firstDefinition: definition?.definition ?? '',
-        firstExample: definition?.example ?? ''
-    };
+  // safer lookup for phonetics
+  const phoneticText = entry.phonetic 
+    ?? entry.phonetics?.find(p => p.text)?.text 
+    ?? '';
+
+  const audioUrl = entry.phonetics?.find(p => p.audio)?.audio ?? '';
+
+  return {
+    word: entry.word,
+    phonetic: phoneticText,
+    phoneticsAudio: audioUrl,
+    origin: entry.origin ?? '',
+    partsOfSpeech: entry.meanings?.map((m) => m.partOfSpeech).join(', ') ?? '',
+    firstDefinition: definition?.definition ?? '',
+    firstExample: definition?.example ?? ''
+  };
 }
