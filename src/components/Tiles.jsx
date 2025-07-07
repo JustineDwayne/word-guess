@@ -29,7 +29,7 @@ export default function Tiles({ length, onInputChange }) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap justify-start gap-2 w-full max-w-full">
       {letters.map((letter, i) => (
         <input
           key={i}
@@ -39,7 +39,7 @@ export default function Tiles({ length, onInputChange }) {
           value={letter}
           onChange={(e) => handleChange(e.target.value, i)}
           onKeyDown={(e) => handleKeyDown(e, i)}
-          className="w-10 h-10 text-center text-xl font-bold border rounded focus:outline-none uppercase"
+          className="w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-500 rounded text-lg sm:text-xl"
         />
       ))}
     </div>

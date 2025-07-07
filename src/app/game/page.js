@@ -77,7 +77,7 @@ export default function page() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [guess, word]);
-  
+
   //Game over function
   useEffect(() => {
     if (heart < 1) {
@@ -91,27 +91,59 @@ export default function page() {
     }
   }, [heart]);
 
+  console.log(word);
   return (
-    <div className='flex flex-col'>
-      <div className="flex gap-1">
-        {Array.from({ length: heart }).map((_, i) => (
-          <span key={i}>❤️</span>
-        ))}
+    <section className="min-h-screen flex flex-col bg-zinc-300 p-4 sm:px-6 lg:px-12 py-6">
+
+      {/* Header: Wrapped in same max-width container */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-screen-sm flex justify-end gap-4 sm:gap-6 mb-12 text-base sm:text-lg md:text-xl">
+          <div className="flex gap-1">
+            {Array.from({ length: heart }).map((_, i) => (
+              <span key={i}>❤️</span>
+            ))}
+          </div>
+          <div>
+            <h1>💰: {coin}</h1>
+          </div>
+        </div>
       </div>
-      <div>{coin > 1 ? `Coins: ${coin}` : `Coin: ${coin}`}</div>
-      <h1>{word.length} letter word</h1>
-      {word && (
-        <Tiles
-          key={word}
-          length={word.length}
-          onInputChange={(currentGuess) => setGuess(currentGuess)}
-        />
-      )}
-      <h1 className='hidden'>Word:{word}</h1>
-      <h1>phonetic:{phonetic}</h1>
-      <h1>partOfSpeech:{partsOfSpeech}</h1>
-      <h1>fd:{firstDefinition}</h1>
-      <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
-    </div>
+
+      {/* Centered Content */}
+      <div className="flex flex-1 justify-center items-center">
+        <div className="flex flex-col items-start w-full max-w-screen-sm space-y-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+            Guess the Word - {word.length} letter word.
+          </h1>
+
+          {word && (
+            <div className="w-full">
+              <Tiles
+                key={word}
+                length={word.length}
+                onInputChange={(currentGuess) => setGuess(currentGuess)}
+                className="w-full flex flex-row gap-1"
+              />
+            </div>
+          )}
+
+          {/* Meta Info */}
+          <p className="text-base sm:text-lg md:text-xl italic text-gray-700 lowercase">
+            {partsOfSpeech}
+          </p>
+
+
+          {/* Definition */}
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-800">
+            {firstDefinition}
+          </p>
+
+          <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
+        </div>
+      </div>
+
+    </section>
+
+
   )
 }
