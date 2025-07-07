@@ -16,7 +16,7 @@ export default function page() {
   const [heart, setHeart] = useState(5);
   const [guess, setGuess] = useState('');
   const [coin, setCoin] = useState(0);
-
+  const [currentLevel, setCurrentLevel] = useState(1);
   const getRandomWord = async () => {
     try {
       const res = await fetch(`https://random-word-api.vercel.app/api?words=1`);
@@ -63,6 +63,7 @@ export default function page() {
       setCoin(prev => prev + 1);
       getRandomWord();
       setGuess('');
+      setCurrentLevel(prev => prev + 1);
     }
   }
 
@@ -87,6 +88,7 @@ export default function page() {
         getRandomWord();
         setHeart(prev => prev + 5);
         setGuess('');
+        setCurrentLevel(1);
       }, 100); // 100ms is enough
     }
   }, [heart]);
@@ -97,7 +99,8 @@ export default function page() {
 
       {/* Header: Wrapped in same max-width container */}
       <div className="w-full flex justify-center">
-        <div className="w-full max-w-screen-sm flex justify-end gap-4 sm:gap-6 mb-12 text-base sm:text-lg md:text-xl">
+        <div className="w-full max-w-screen-sm flex justify-evenly items-center gap-4 sm:gap-6 mb-12 text-base sm:text-lg md:text-xl">
+          <h1>Level: {currentLevel}</h1>
           <div className="flex gap-1">
             {Array.from({ length: heart }).map((_, i) => (
               <span key={i}>❤️</span>
@@ -111,7 +114,7 @@ export default function page() {
 
       {/* Centered Content */}
       <div className="flex flex-1 justify-center items-center">
-        <div className="flex flex-col items-start w-full max-w-screen-sm space-y-6">
+        <div className="flex flex-col items-start w-full max-w-screen-sm space-y-6 p-4">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
             Guess the Word - {word.length} letter word.
           </h1>
