@@ -3,6 +3,8 @@ import React from 'react'
 import { useState, useEffect, useRouter } from 'react';
 import Tiles from '@/components/Tiles';
 import Button from '@/components/Button';
+import Modal from '@/components/Modal';
+
 export default function page() {
   //hooks for getWords lib
   const [word, setWord] = useState('');
@@ -17,6 +19,9 @@ export default function page() {
   const [guess, setGuess] = useState('');
   const [coin, setCoin] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(1);
+  const [modal, setModal] = useState(false);
+
+
   const getRandomWord = async () => {
     try {
       const res = await fetch(`https://random-word-api.vercel.app/api?words=1`);
@@ -59,9 +64,8 @@ export default function page() {
     }
 
     if (currentGuess.toLowerCase() == word.toLowerCase()) {
-      alert('You win! The word was ' + word + '. Try again!');
       setCoin(prev => prev + 1);
-      getRandomWord();
+      setModal(true);
       setGuess('');
       setCurrentLevel(prev => prev + 1);
     }
@@ -143,6 +147,19 @@ export default function page() {
 
           <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
         </div>
+
+        {modal &&
+          (
+            <Modal
+              word={word}
+              firstDefinition={firstDefinition}
+              onClose={() => {
+                setModal(false);
+                getRandomWord();
+              }}
+            />
+          )
+        }
       </div>
 
     </section>
