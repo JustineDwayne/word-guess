@@ -151,7 +151,11 @@ export default function page() {
         {modal &&
           (
             <Modal
+              status='🎉 Correct!'
+              desc='You guessed the word:'
               word={word}
+              phoneticsAudio={phoneticsAudio}
+              phonetics={phonetic}
               firstDefinition={firstDefinition}
               onClose={() => {
                 setModal(false);
