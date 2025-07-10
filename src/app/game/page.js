@@ -19,7 +19,7 @@ export default function page() {
   const [guess, setGuess] = useState('');
   const [coin, setCoin] = useState(0);
   const [currentLevel, setCurrentLevel] = useState(1);
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState({ show: false, status: '', desc: '' });
 
 
   const getRandomWord = async () => {
@@ -65,35 +65,40 @@ export default function page() {
 
     if (currentGuess.toLowerCase() == word.toLowerCase()) {
       setCoin(prev => prev + 1);
-      setModal(true);
-      setGuess('');
       setCurrentLevel(prev => prev + 1);
+      setGuess('');
+      setModal({
+        show: true,
+        status: '🎉 Correct!',
+        desc: 'You guessed the word:',
+      });
     }
   }
 
   //enter function
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && !modal.show) {
         checkSubmit(guess, word);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [guess, word]);
+  }, [guess, word, modal]);
 
   //Game over function
   useEffect(() => {
     if (heart < 1) {
-      // ⏳ Let React update DOM before showing alert
       setTimeout(() => {
-        alert('You lose, the word was ' + word + '. Try again!');
-        getRandomWord();
-        setHeart(prev => prev + 5);
-        setGuess('');
-        setCurrentLevel(1);
-      }, 100); // 100ms is enough
+        setCoin(prev => prev - 1);
+        setHeart(5);
+        setModal({
+          show: true,
+          status: '💀 You lose!',
+          desc: 'The word was:',
+        });
+      }, 100);
     }
   }, [heart]);
 
@@ -148,18 +153,18 @@ export default function page() {
           <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
         </div>
 
-        {modal &&
+        {modal.show &&
           (
             <Modal
-              status='🎉 Correct!'
-              desc='You guessed the word:'
+              status={modal.status}
+              desc={modal.desc}
               word={word}
               partsOfSpeech={partsOfSpeech}
               phoneticsAudio={phoneticsAudio}
               phonetics={phonetic}
               firstDefinition={firstDefinition}
               onClose={() => {
-                setModal(false);
+                setModal({ show: false, status: '', desc: '' });
                 getRandomWord();
               }}
             />
