@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import Button from "./Button";
 
-export default function Modal({ word, firstDefinition, onClose, status, desc, phonetics, phoneticsAudio }) {
+export default function Modal({ word, firstDefinition, onClose, status, desc, phonetics, phoneticsAudio, partsOfSpeech, firstExample }) {
   const audioRef = useRef(null);
 
   const handlePlayAudio = () => {
@@ -14,11 +14,12 @@ export default function Modal({ word, firstDefinition, onClose, status, desc, ph
   const formatWord = word.charAt(0).toUpperCase() + word.slice(1);
 
   return (
-    <div className="fixed inset-0 bg-black/70 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/70 bg-opacity-50 flex justify-center items-center gap-2">
       <div className="bg-white p-6 rounded shadow-xl w-[300px]">
         <h2 className="text-xl font-bold mb-2">{status}</h2>
         <h2 className="text-xl font-bold">{desc}</h2>
         <p className="font-bold text-2xl"><strong>{formatWord}</strong></p>
+        <p className="font-extralight">{partsOfSpeech}</p>
         {/* Pronunciation Audio */}
         <div className="mb-2 flex flex-row gap-2">
           {phoneticsAudio ? (

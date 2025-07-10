@@ -154,6 +154,7 @@ export default function page() {
               status='🎉 Correct!'
               desc='You guessed the word:'
               word={word}
+              partsOfSpeech={partsOfSpeech}
               phoneticsAudio={phoneticsAudio}
               phonetics={phonetic}
               firstDefinition={firstDefinition}
