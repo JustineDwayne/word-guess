@@ -1,9 +1,11 @@
 'use client';
 import React from 'react'
-import { useState, useEffect, useRouter } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
 import Tiles from '@/components/Tiles';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
+import { FaHome } from "react-icons/fa";
 
 export default function page() {
   //hooks for getWords lib
@@ -21,6 +23,12 @@ export default function page() {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [modal, setModal] = useState({ show: false, status: '', desc: '' });
   const [hints, setHints] = useState({});
+
+  const router = useRouter();
+
+  const homeButton = () => {
+    router.push("/");
+  };
 
   const getRandomWord = async () => {
     try {
@@ -109,7 +117,7 @@ export default function page() {
   //give up function
   const giveUp = () => {
 
-    if(coin > 0){
+    if (coin > 0) {
       setCoin(prev => prev - 1);
     } else {
       setCoin(0);
@@ -128,13 +136,13 @@ export default function page() {
 
   const hint = () => {
 
-    if (coin == 0 ){
-      return alert ('Not enough coins.');
+    if (coin == 0) {
+      return alert('Not enough coins.');
     }
 
     const unrevealedIndices = [...word]
-    .map((_, index) => index)
-    .filter(i => !(i in hints))
+      .map((_, index) => index)
+      .filter(i => !(i in hints))
 
     const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
     const newHintLetter = word[randomIndex];
@@ -162,6 +170,7 @@ export default function page() {
             <h1>💰: {coin}</h1>
           </div>
         </div>
+        <FaHome className="absolute top-4 right-4 text-2xl cursor-pointer text-zinc-500 hover:text-zinc-800" onClick={homeButton} />
       </div>
 
       {/* Centered Content */}
@@ -194,11 +203,18 @@ export default function page() {
             {firstDefinition}
           </p>
 
-          <div className='flex flex-row gap-2'>
-            <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
-            <Button label="Give Up" onClick={giveUp} />
-            <Button label="Hint (-1 💰)" onClick={hint}/>
+          <div className="flex justify-between w-full gap-4">
+            <div className="flex-1">
+              <Button label="Give Up" onClick={giveUp} bgColor='bg-red-500' />
+            </div>
+            <div className="flex-1">
+              <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
+            </div>
+            <div className="flex-1">
+              <Button label="Hint (-1 💰)" onClick={hint} bgColor='bg-orange-500' />
+            </div>
           </div>
+
         </div>
 
         {modal.show &&
