@@ -23,7 +23,7 @@ export default function page() {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [modal, setModal] = useState({ show: false, status: '', desc: '' });
   const [hints, setHints] = useState({});
-
+  const [loading, setLoading] = useState(true)
   const router = useRouter();
 
   const homeButton = () => {
@@ -32,6 +32,7 @@ export default function page() {
 
   const getRandomWord = async () => {
     try {
+      setLoading(true);
       const res = await fetch(`https://random-word-api.vercel.app/api?words=1`);
       const [randomWord] = await res.json();
 
@@ -56,6 +57,8 @@ export default function page() {
       setFirstExample(dictData.firstExample);
     } catch (error) {
       console.error('Error fetching word:', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,6 +157,7 @@ export default function page() {
 
 
   console.log(word);
+
   return (
     <section className="min-h-screen flex flex-col bg-zinc-300 p-4 sm:px-6 lg:px-12 py-6">
 
@@ -175,46 +179,51 @@ export default function page() {
 
       {/* Centered Content */}
       <div className="flex flex-1 justify-center items-center">
-        <div className="flex flex-col items-start w-full max-w-screen-sm space-y-6 p-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
-            Guess the Word - {word.length} letter word.
-          </h1>
+        <div className="flex flex-1 justify-center items-center">
+          {loading ? (
 
-          {word && (
-            <div className="w-full">
-              <Tiles
-                key={word}
-                length={word.length}
-                onInputChange={(currentGuess) => setGuess(currentGuess)}
-                className="w-full flex flex-row gap-1"
-                hintMap={hints}
-              />
+            <div className="flex flex-col items-center justify-center h-full space-y-4 animate-pulse text-gray-700 text-xl">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span>Loading word</span>
+            </div>
+
+          ) : (
+            <div className="flex flex-col items-start w-full max-w-screen-sm space-y-6 p-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+                Guess the Word - {word.length} letter word.
+              </h1>
+
+              <div className="w-full">
+                <Tiles
+                  key={word}
+                  length={word.length}
+                  onInputChange={(currentGuess) => setGuess(currentGuess)}
+                  className="w-full flex flex-row gap-1"
+                  hintMap={hints}
+                />
+              </div>
+
+              <p className="text-base sm:text-lg md:text-xl italic text-gray-700 lowercase">
+                {partsOfSpeech}
+              </p>
+
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-800">
+                {firstDefinition}
+              </p>
+
+              <div className="flex justify-between w-full gap-4">
+                <div className="flex-1">
+                  <Button label="Give Up" onClick={giveUp} bgColor='bg-red-500' />
+                </div>
+                <div className="flex-1">
+                  <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
+                </div>
+                <div className="flex-1">
+                  <Button label="Hint (-1 💰)" onClick={hint} bgColor='bg-orange-500' />
+                </div>
+              </div>
             </div>
           )}
-
-          {/* Meta Info */}
-          <p className="text-base sm:text-lg md:text-xl italic text-gray-700 lowercase">
-            {partsOfSpeech}
-          </p>
-
-
-          {/* Definition */}
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-800">
-            {firstDefinition}
-          </p>
-
-          <div className="flex justify-between w-full gap-4">
-            <div className="flex-1">
-              <Button label="Give Up" onClick={giveUp} bgColor='bg-red-500' />
-            </div>
-            <div className="flex-1">
-              <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
-            </div>
-            <div className="flex-1">
-              <Button label="Hint (-1 💰)" onClick={hint} bgColor='bg-orange-500' />
-            </div>
-          </div>
-
         </div>
 
         {modal.show &&
