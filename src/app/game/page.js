@@ -17,10 +17,10 @@ export default function page() {
   //hooks for game
   const [heart, setHeart] = useState(5);
   const [guess, setGuess] = useState('');
-  const [coin, setCoin] = useState(0);
+  const [coin, setCoin] = useState(3);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [modal, setModal] = useState({ show: false, status: '', desc: '' });
-
+  const [hints, setHints] = useState({});
 
   const getRandomWord = async () => {
     try {
@@ -73,6 +73,10 @@ export default function page() {
         desc: 'You guessed the word:',
       });
     }
+
+    if (currentGuess.length !== word.length) {
+      alert('Please enter the full word.');
+    }
   }
 
   //enter function
@@ -101,6 +105,45 @@ export default function page() {
       }, 100);
     }
   }, [heart]);
+
+  //give up function
+  const giveUp = () => {
+
+    if(coin > 0){
+      setCoin(prev => prev - 1);
+    } else {
+      setCoin(0);
+    }
+    setModal({
+      show: true,
+      status: '💀 You give up!',
+      desc: 'The word was:',
+    });
+
+    setGuess('');
+    setHints({});
+    setCurrentLevel(1);
+    setHeart(5);
+  }
+
+  const hint = () => {
+
+    if (coin == 0 ){
+      return alert ('Not enough coins.');
+    }
+
+    const unrevealedIndices = [...word]
+    .map((_, index) => index)
+    .filter(i => !(i in hints))
+
+    const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
+    const newHintLetter = word[randomIndex];
+
+    setHints(prev => ({ ...prev, [randomIndex]: newHintLetter }));
+    setCoin(prev => prev - 1);
+
+  };
+
 
   console.log(word);
   return (
@@ -135,6 +178,7 @@ export default function page() {
                 length={word.length}
                 onInputChange={(currentGuess) => setGuess(currentGuess)}
                 className="w-full flex flex-row gap-1"
+                hintMap={hints}
               />
             </div>
           )}
@@ -150,7 +194,11 @@ export default function page() {
             {firstDefinition}
           </p>
 
-          <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
+          <div className='flex flex-row gap-2'>
+            <Button label="Submit" onClick={() => checkSubmit(guess, word)} />
+            <Button label="Give Up" onClick={giveUp} />
+            <Button label="Hint (-1 💰)" onClick={hint}/>
+          </div>
         </div>
 
         {modal.show &&
@@ -166,6 +214,7 @@ export default function page() {
               onClose={() => {
                 setModal({ show: false, status: '', desc: '' });
                 getRandomWord();
+                setHints({});
               }}
             />
           )
